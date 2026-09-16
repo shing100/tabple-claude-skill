@@ -1,11 +1,11 @@
 {
-  "name": "@taskflow/claude-skill",
+  "name": "@tabple/claude-skill",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Claude Code skill — TaskFlow project context for LLM coding agents",
+  "description": "Claude Code skill — Tabple project context for LLM coding agents",
   "bin": {
-    "tf": "./bin/tf.mjs"
+    "tp": "./bin/tp.mjs"
   },
   "engines": {
     "node": ">=20"

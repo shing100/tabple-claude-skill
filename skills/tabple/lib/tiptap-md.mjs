@@ -143,7 +143,7 @@ function nodeToMd(node, depth = 0) {
 }
 
 /**
- * Parse JSON 또는 HTML 문자열 (TaskFlow API 의 page.content 는 둘 중 하나).
+ * Parse JSON 또는 HTML 문자열 (Tabple API 의 page.content 는 둘 중 하나).
  * JSON parse 실패하면 원본 문자열을 fenced text 로 반환 (HTML fallback).
  */
 export function pageContentToMarkdown(title, rawContent) {

@@ -107,7 +107,7 @@ export function renderProjectContext({ project, columns, tasks, labels, members,
   // ── Wiki tree ────────────────────────────────────────────────────
   if (pages?.length) {
     lines.push("## Wiki Pages");
-    lines.push("`[id]` 다음에 `tf wiki get <id>` 로 본문을 가져올 수 있다.");
+    lines.push("`[id]` 다음에 `tp wiki get <id>` 로 본문을 가져올 수 있다.");
     lines.push("");
     lines.push(...buildPageTree(pages));
     lines.push("");
@@ -138,18 +138,18 @@ export function renderProjectContext({ project, columns, tasks, labels, members,
 
   // ── Footer ────────────────────────────────────────────────────────
   lines.push("---");
-  lines.push("_TaskFlow context card — `tf context` 출력. 60s 캐시._");
+  lines.push("_Tabple context card — `tp context` 출력. 60s 캐시._");
   return lines.join("\n") + "\n";
 }
 
 export function renderProjectList(projects) {
-  const lines = ["# TaskFlow Projects", ""];
+  const lines = ["# Tabple Projects", ""];
   lines.push("| ID | Key | Name | Tasks | Members |");
   lines.push("|---|---|---|---|---|");
   for (const p of projects) {
     lines.push(`| ${p.id} | ${p.key ?? "—"} | ${p.name} | ${p.task_count ?? "?"} | ${p.member_count ?? "?"} |`);
   }
   lines.push("");
-  lines.push("`tf context <id-or-key>` 로 상세 컨텍스트 로드.");
+  lines.push("`tp context <id-or-key>` 로 상세 컨텍스트 로드.");
   return lines.join("\n") + "\n";
 }

@@ -1,22 +1,22 @@
 #!/usr/bin/env node
-// TaskFlow Claude skill CLI.
-// 두 서브명령만 (나머지는 MCP 도구 mcp__taskflow__* 가 커버):
-//   tf context <project-id-or-key>   composite + 60s 캐시
-//   tf wiki   get <page-id>          TipTap JSON → Markdown
-//   tf projects list                 다중 프로젝트 진입점 (캐시 안 함)
+// Tabple Claude skill CLI.
+// 두 서브명령만 (나머지는 MCP 도구 mcp__tabple__* 가 커버):
+//   tp context <project-id-or-key>   composite + 60s 캐시
+//   tp wiki   get <page-id>          TipTap JSON → Markdown
+//   tp projects list                 다중 프로젝트 진입점 (캐시 안 함)
 // SKILL.md 참고.
 
-import { api, TaskflowApiError } from "../lib/api.mjs";
+import { api, TabpleApiError } from "../lib/api.mjs";
 import { withCache } from "../lib/cache.mjs";
 import { pageContentToMarkdown } from "../lib/tiptap-md.mjs";
 import { renderProjectContext, renderProjectList } from "../lib/render.mjs";
 
-const HELP = `tf — TaskFlow Claude skill CLI
+const HELP = `tp — Tabple Claude skill CLI
 
 사용:
-  tf context <project-id-or-key>     프로젝트 컨텍스트 카드 (60s 캐시)
-  tf wiki get <page-id>              위키 페이지 본문 → Markdown
-  tf projects list                   내 프로젝트 목록
+  tp context <project-id-or-key>     프로젝트 컨텍스트 카드 (60s 캐시)
+  tp wiki get <page-id>              위키 페이지 본문 → Markdown
+  tp projects list                   내 프로젝트 목록
 
 옵션:
   --no-cache       캐시 무시하고 강제 재요청
@@ -25,8 +25,8 @@ const HELP = `tf — TaskFlow Claude skill CLI
   --include-hidden 트리에서 가려진 페이지(PageList 인라인) 포함
 
 환경:
-  TASKFLOW_TOKEN          PAT (또는 ~/.taskflow/config.json:token)
-  TASKFLOW_BASE_URL       기본 https://taskflow.promstack.com
+  TABPLE_TOKEN          PAT (또는 ~/.tabple/config.json:token)
+  TABPLE_BASE_URL       기본 https://tabple.com
 
 `;
 
@@ -45,7 +45,7 @@ function parseArgs(argv) {
 }
 
 function fail(msg, code = 1) {
-  process.stderr.write(`tf: ${msg}\n`);
+  process.stderr.write(`tp: ${msg}\n`);
   process.exit(code);
 }
 
@@ -58,13 +58,13 @@ async function resolveProjectId(idOrKey) {
     (p) => (p.key && p.key.toLowerCase() === idOrKey.toLowerCase()) ||
            p.name.toLowerCase() === idOrKey.toLowerCase(),
   );
-  if (!hit) throw new Error(`프로젝트를 찾을 수 없습니다: "${idOrKey}". 'tf projects list' 로 확인.`);
+  if (!hit) throw new Error(`프로젝트를 찾을 수 없습니다: "${idOrKey}". 'tp projects list' 로 확인.`);
   return hit.id;
 }
 
 async function cmdContext(args) {
   const target = args._[1];
-  if (!target) fail("프로젝트 id 또는 key 가 필요합니다. 예: tf context 42");
+  if (!target) fail("프로젝트 id 또는 key 가 필요합니다. 예: tp context 42");
 
   const projectId = await resolveProjectId(target);
   const cacheKey = `context:${projectId}`;
@@ -98,7 +98,7 @@ async function cmdContext(args) {
 
 async function cmdWikiGet(args) {
   const pageId = args._[2];
-  if (!pageId) fail("페이지 id 가 필요합니다. 예: tf wiki get 123");
+  if (!pageId) fail("페이지 id 가 필요합니다. 예: tp wiki get 123");
   if (!/^\d+$/.test(pageId)) fail("페이지 id 는 숫자여야 합니다.");
 
   const page = await api.getPage(Number(pageId));
@@ -133,7 +133,7 @@ async function main() {
     else if (verb === "projects" && sub === "list") await cmdProjectsList(args);
     else fail(`알 수 없는 명령: ${args._.join(" ")}\n\n${HELP}`);
   } catch (e) {
-    if (e instanceof TaskflowApiError) {
+    if (e instanceof TabpleApiError) {
       fail(`API ${e.status} — ${e.url}\n${e.body}`, 2);
     }
     fail(e.message ?? String(e), 1);

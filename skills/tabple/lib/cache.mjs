@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 
-const CACHE_DIR = join(homedir(), ".taskflow", "cache");
+const CACHE_DIR = join(homedir(), ".tabple", "cache");
 const DEFAULT_TTL_MS = 60_000;
 
 function ensureDir() {

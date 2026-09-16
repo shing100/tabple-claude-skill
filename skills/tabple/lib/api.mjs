@@ -1,8 +1,8 @@
 import { loadConfig } from "./config.mjs";
 
-export class TaskflowApiError extends Error {
+export class TabpleApiError extends Error {
   constructor(status, body, url) {
-    super(`TaskFlow API ${status} — ${url}\n${body}`);
+    super(`Tabple API ${status} — ${url}\n${body}`);
     this.status = status;
     this.body = body;
     this.url = url;
@@ -23,7 +23,7 @@ async function request(path, init = {}) {
   });
   const text = await res.text();
   if (!res.ok) {
-    throw new TaskflowApiError(res.status, text.slice(0, 400), url);
+    throw new TabpleApiError(res.status, text.slice(0, 400), url);
   }
   if (!text) return null;
   try {
