@@ -111,3 +111,23 @@ test("horizontalRule → ---", () => {
   const out = tiptapToMarkdown("T", doc({ type: "horizontalRule" }));
   assert.ok(out.includes("\n---\n"));
 });
+
+test("imageWrap (커스텀 wrapper) → ![alt](src) 보존", () => {
+  // 회귀 방지: case 누락 시 atom 노드라 default 폴백이 빈 문자열 반환 → 이미지 자체 소실.
+  const out = tiptapToMarkdown(
+    "T",
+    doc({
+      type: "imageWrap",
+      attrs: { src: "https://r2.example.com/x.png", alt: "그림 1", float: "left", width: 320 },
+    }),
+  );
+  assert.ok(out.includes("![그림 1](https://r2.example.com/x.png)"), out);
+});
+
+test("imageWrap with empty src → 빈 문자열 (placeholder 제외)", () => {
+  const out = tiptapToMarkdown(
+    "T",
+    doc({ type: "imageWrap", attrs: { src: "", alt: "", float: "none", width: 400 } }),
+  );
+  assert.ok(!/!\[\]/.test(out), out);
+});

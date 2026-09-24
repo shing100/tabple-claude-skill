@@ -97,6 +97,16 @@ function nodeToMd(node, depth = 0) {
       return `![${alt}](${src}${title ? ` "${title}"` : ""})\n\n`;
     }
 
+    // Tabple 커스텀 wrapper 노드 (float/width/alt 보존). 표준 Markdown 으론 float/width
+    // 표현 불가 → src/alt 만 보존. 이 case 가 없으면 default 폴백에서 atom 노드라 빈 문자열
+    // 반환 → MD export 시 이미지 자체가 사라지는 회귀.
+    case "imageWrap": {
+      const alt = node.attrs?.alt ?? "";
+      const src = node.attrs?.src ?? "";
+      if (!src) return "";
+      return `![${alt}](${src})\n\n`;
+    }
+
     case "table": {
       const rows = node.content ?? [];
       const lines = rows.map((row, ri) => {
@@ -143,7 +153,7 @@ function nodeToMd(node, depth = 0) {
 }
 
 /**
- * Parse JSON 또는 HTML 문자열 (TaskFlow API 의 page.content 는 둘 중 하나).
+ * Parse JSON 또는 HTML 문자열 (Tabple API 의 page.content 는 둘 중 하나).
  * JSON parse 실패하면 원본 문자열을 fenced text 로 반환 (HTML fallback).
  */
 export function pageContentToMarkdown(title, rawContent) {

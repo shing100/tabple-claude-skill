@@ -1,16 +1,16 @@
 {
-  "name": "taskflow",
-  "version": "0.1.0",
-  "description": "Load TaskFlow project context (wiki + board) and CRUD tasks for any LLM coding session. Bridges Claude Code with TaskFlow (https://taskflow.promstack.com).",
+  "name": "tabple",
+  "version": "0.2.0",
+  "description": "Load Tabple project context (wiki + board) and CRUD tasks for any LLM coding session. Bridges Claude Code with Tabple (https://tabple.com).",
   "author": {
     "name": "shing100",
     "url": "https://github.com/shing100"
   },
-  "homepage": "https://github.com/shing100/taskflow-claude-skill",
-  "repository": "https://github.com/shing100/taskflow-claude-skill",
+  "homepage": "https://github.com/shing100/tabple-claude-skill",
+  "repository": "https://github.com/shing100/tabple-claude-skill",
   "license": "MIT",
   "keywords": [
-    "taskflow",
+    "tabple",
     "promstack",
     "mcp",
     "wiki",
@@ -20,6 +20,6 @@
     "korean"
   ],
   "skills": [
-    "./skills/taskflow"
+    "./skills/tabple"
   ]
 }

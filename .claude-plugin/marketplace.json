@@ -1,21 +1,21 @@
 {
-  "name": "taskflow-claude-skill",
+  "name": "tabple-claude-skill",
   "owner": {
     "name": "shing100",
     "url": "https://github.com/shing100"
   },
   "metadata": {
-    "description": "TaskFlow project context skill for Claude Code — load wiki + board, CRUD tasks across one or many projects.",
-    "version": "0.1.0"
+    "description": "Tabple project context skill for Claude Code — load wiki + board, CRUD tasks across one or many projects.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
-      "name": "taskflow",
-      "description": "Load TaskFlow project context (wiki + board) and CRUD tasks. Bridges Claude Code with TaskFlow at taskflow.promstack.com.",
+      "name": "tabple",
+      "description": "Load Tabple project context (wiki + board) and CRUD tasks. Bridges Claude Code with Tabple at tabple.com.",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/taskflow"
+        "./skills/tabple"
       ]
     }
   ]

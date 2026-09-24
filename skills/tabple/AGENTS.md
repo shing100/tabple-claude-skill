@@ -1,4 +1,4 @@
-# TaskFlow Agent Guide (non-Claude-Code agents)
+# Tabple Agent Guide (non-Claude-Code agents)
 
 이 파일은 [SKILL.md](SKILL.md) 의 미러로, **Cursor / Codex CLI / Gemini CLI / VS Code Copilot Agent** 같이 Claude Code skill 포맷을 모르는 에이전트들이 같은 워크플로우 규약으로 동작하도록 한다.
 
@@ -11,11 +11,11 @@ Claude Code 사용자는 SKILL.md 가 자동으로 발동된다 — 이 파일�
 이 파일을 시스템 프롬프트 / 작업 디렉터리 컨텍스트로 주입한 뒤 다음 변수를 정의해두면 워크플로우의 모든 명령이 즉시 작동한다:
 
 ```bash
-export TASKFLOW_SKILL_DIR="/absolute/path/to/.claude/skills/taskflow"
-export TASKFLOW_TOKEN="tf_xxxxxxxx"   # TaskFlow Desktop → Settings → MCP 에서 발급
+export TABPLE_SKILL_DIR="/absolute/path/to/.claude/skills/tabple"
+export TABPLE_TOKEN="tf_xxxxxxxx"   # Tabple Desktop → Settings → MCP 에서 발급
 ```
 
-이후 `$TASKFLOW_SKILL_DIR` 가 Claude Code 의 `${CLAUDE_SKILL_DIR}` 자리를 대신한다.
+이후 `$TABPLE_SKILL_DIR` 가 Claude Code 의 `${CLAUDE_SKILL_DIR}` 자리를 대신한다.
 
 ---
 
@@ -23,16 +23,16 @@ export TASKFLOW_TOKEN="tf_xxxxxxxx"   # TaskFlow Desktop → Settings → MCP �
 
 ### A. MCP 도구 (가능하면 우선)
 
-Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. TaskFlow Desktop → Settings → MCP 화면이 각 클라이언트별 설정 스니펫을 제공한다. 등록 후 다음 도구가 자동 노출:
+Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. Tabple Desktop → Settings → MCP 화면이 각 클라이언트별 설정 스니펫을 제공한다. 등록 후 다음 도구가 자동 노출:
 
-- `taskflow.list_projects`
-- `taskflow.get_tasks`
-- `taskflow.create_task`
-- `taskflow.update_task`
-- `taskflow.list_pages`
-- `taskflow.get_project_stats`
+- `tabple.list_projects`
+- `tabple.get_tasks`
+- `tabple.create_task`
+- `tabple.update_task`
+- `tabple.list_pages`
+- `tabple.get_project_stats`
 
-(Claude Code 에서는 `mcp__taskflow__*` 접두사로 노출)
+(Claude Code 에서는 `mcp__tabple__*` 접두사로 노출)
 
 **MCP 가 커버하는 작업은 무조건 MCP 우선** — 구조화돼 있고 자동 검증·디스커버리가 붙어 있다.
 
@@ -40,9 +40,9 @@ Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. 
 
 | 능력 | 명령 | 이유 |
 |---|---|---|
-| 위키 페이지 **본문** → Markdown | `node $TASKFLOW_SKILL_DIR/bin/tf.mjs wiki get <id>` | MCP `list_pages` 는 트리만, 본문 fetch 도구 미제공 |
-| 프로젝트 **composite context** (project + columns + tasks + members + stats + pages 한 번에, 60s 캐시) | `node $TASKFLOW_SKILL_DIR/bin/tf.mjs context <id-or-key>` | 분당 30콜 한도 보호 + LLM-친화 카드 포맷 |
-| 프로젝트 목록 (MCP 미등록 폴백) | `node $TASKFLOW_SKILL_DIR/bin/tf.mjs projects list` | MCP `list_projects` 와 동등 |
+| 위키 페이지 **본문** → Markdown | `node $TABPLE_SKILL_DIR/bin/tp.mjs wiki get <id>` | MCP `list_pages` 는 트리만, 본문 fetch 도구 미제공 |
+| 프로젝트 **composite context** (project + columns + tasks + members + stats + pages 한 번에, 60s 캐시) | `node $TABPLE_SKILL_DIR/bin/tp.mjs context <id-or-key>` | 분당 30콜 한도 보호 + LLM-친화 카드 포맷 |
+| 프로젝트 목록 (MCP 미등록 폴백) | `node $TABPLE_SKILL_DIR/bin/tp.mjs projects list` | MCP `list_projects` 와 동등 |
 
 `npm link` 했다면 짧게 `tf ...` 로 써도 됨.
 
@@ -53,7 +53,7 @@ Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. 
 ### 1. "프로젝트 X 컨텍스트 로드해줘"
 
 ```bash
-node $TASKFLOW_SKILL_DIR/bin/tf.mjs context X
+node $TABPLE_SKILL_DIR/bin/tp.mjs context X
 ```
 
 X 는 id (정수) / key ("PRJ") / 정확한 이름. 결과는 Stats · Columns · Members · Labels · Wiki tree · Recent Tasks 카드. 사용자에게는 한 단락 요약 후 카드 자체는 컨텍스트에 보관.
@@ -66,7 +66,7 @@ X 는 id (정수) / key ("PRJ") / 정확한 이름. 결과는 Stats · Columns �
 ### 3. "위키 페이지 N 본문 보여줘"
 
 ```bash
-node $TASKFLOW_SKILL_DIR/bin/tf.mjs wiki get N
+node $TABPLE_SKILL_DIR/bin/tp.mjs wiki get N
 ```
 
 LLM-친화 Markdown. 표·코드블록·링크·체크리스트 유지. 미지원 노드 (mermaid/figma embed 등) 는 placeholder 로 degrade — 사용자에게 누락 안내.
@@ -99,11 +99,11 @@ MCP `create_task` / `update_task`. 호출 전 사용자에게 컬럼·우선순�
 
 - 같은 `tf context` 짧은 간격 반복 호출 (60s 캐시가 1차 방어선, `--no-cache` 남발 금지). 분당 30콜 한도.
 - 태스크 생성/수정 전 사용자 확인 없이 진행. **MCP create/update 는 즉시 서버 반영**.
-- 위키 본문을 LLM 이 새로 작성해 PUT 금지 — 본문 편집은 TaskFlow Desktop 에디터에서.
+- 위키 본문을 LLM 이 새로 작성해 PUT 금지 — 본문 편집은 Tabple Desktop 에디터에서.
 
 ## 트러블슈팅
 
-- `tf: TaskFlow 토큰이 설정되지 않았습니다` → README "PAT 발급" 단계.
+- `tf: Tabple 토큰이 설정되지 않았습니다` → README "PAT 발급" 단계.
 - `API 401` → 토큰 만료/권한 부족. Settings → MCP 에서 재발급.
 - `API 429` → 분당 한도 초과. 60초 대기 또는 캐시된 결과 활용.
 - `tf wiki get` 결과가 HTML 처럼 보인다 → 페이지 본문이 JSON 이 아닌 HTML 로 저장된 경우 (degrade path, 정상).

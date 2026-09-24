@@ -2,7 +2,6 @@
 // 입력: { project, columns, tasks, labels, members, stats, pages }  (REST snake_case 그대로)
 // 출력: 단일 .md 문자열.
 
-const STATUS_ORDER = ["urgent", "high", "medium", "low"];
 
 function fmtDate(iso) {
   if (!iso) return "—";
@@ -138,12 +137,12 @@ export function renderProjectContext({ project, columns, tasks, labels, members,
 
   // ── Footer ────────────────────────────────────────────────────────
   lines.push("---");
-  lines.push("_TaskFlow context card — `tf context` 출력. 60s 캐시._");
+  lines.push("_Tabple context card — `tf context` 출력. 60s 캐시._");
   return lines.join("\n") + "\n";
 }
 
 export function renderProjectList(projects) {
-  const lines = ["# TaskFlow Projects", ""];
+  const lines = ["# Tabple Projects", ""];
   lines.push("| ID | Key | Name | Tasks | Members |");
   lines.push("|---|---|---|---|---|");
   for (const p of projects) {
