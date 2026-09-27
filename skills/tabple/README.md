@@ -47,7 +47,10 @@ chmod 600 ~/.tabple/config.json
 
 ### 3. (선행) 토큰 호환성 확인 — **블로커 spike**
 
-이 스킬의 CLI 는 REST 엔드포인트 (`/api/projects` 등) 를 직접 호출한다. MCP-kind 토큰이 REST 에서도 통과해야 한다. **한 번 확인:**
+이 스킬의 CLI 는 **읽기**를 REST 엔드포인트 (`/api/projects` 등) 로 직접 호출한다. 백엔드는 PAT 를 MCP 엔드포인트와
+이 CLI 가 읽는 GET 6곳(`/api/projects` · `/api/projects/:id` · `/stats` · `/members` · `/api/pages` · `/api/pages/:id`)에서만
+받는다. 위키 **쓰기**(`tp wiki create/update/delete`)는 REST 가 아니라 MCP 엔드포인트(`/api/mcp`)의 같은 도구를 부른다 —
+그래서 MCP 와 같은 조건(Pro · Pro 일회성 결제, 읽기 전용 토큰은 거절)이다. **한 번 확인:**
 
 ```bash
 curl -sS -H "Authorization: Bearer $TABPLE_TOKEN" \
@@ -55,7 +58,7 @@ curl -sS -H "Authorization: Bearer $TABPLE_TOKEN" \
 ```
 
 - 정상: JSON 응답 (프로젝트 배열)
-- 실패: `401 Unauthorized` → 백엔드에서 MCP 토큰을 REST 에서 거부하는 상태. 이슈 등록 후 백엔드 수정 필요. (이 경우 CLI 가 작동하지 않으니 MCP 도구 채널만 사용)
+- 실패: `401 Unauthorized` → 토큰이 만료·폐기됐거나 잘못 복사됐다. Settings → MCP 에서 다시 발급.
 
 ### 4. Claude Code 에 스킬 등록
 

@@ -2,7 +2,6 @@
 // 입력: { project, columns, tasks, labels, members, stats, pages }  (REST snake_case 그대로)
 // 출력: 단일 .md 문자열.
 
-const STATUS_ORDER = ["urgent", "high", "medium", "low"];
 
 function fmtDate(iso) {
   if (!iso) return "—";

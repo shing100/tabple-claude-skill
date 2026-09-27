@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Tabple project context skill for Claude Code — load wiki + board, CRUD tasks across one or many projects.",
-    "version": "0.1.0"
+    "version": "0.2.1"
   },
   "plugins": [
     {
