@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 // Tabple Claude skill CLI.
 // 서브명령 (나머지는 MCP 도구 mcp__tabple__* 가 커버):
-//   tf context <project-id-or-key>             composite + 60s 캐시
-//   tf wiki   get <page-id>                    TipTap JSON → Markdown
-//   tf wiki   create -p <pid> -t <title>       위키 페이지 생성
-//   tf wiki   update <page-id> [-t ...] [-c ...]  위키 페이지 수정
-//   tf wiki   delete <page-id>                 위키 페이지 삭제
-//   tf projects list                           다중 프로젝트 진입점 (캐시 안 함)
+//   tp context <project-id-or-key>             composite + 60s 캐시
+//   tp wiki   get <page-id>                    TipTap JSON → Markdown
+//   tp wiki   create -p <pid> -t <title>       위키 페이지 생성
+//   tp wiki   update <page-id> [-t ...] [-c ...]  위키 페이지 수정
+//   tp wiki   delete <page-id>                 위키 페이지 삭제
+//   tp projects list                           다중 프로젝트 진입점 (캐시 안 함)
 // SKILL.md 참고.
 
 import { api, TabpleApiError } from "../lib/api.mjs";
@@ -14,15 +14,18 @@ import { withCache } from "../lib/cache.mjs";
 import { pageContentToMarkdown } from "../lib/tiptap-md.mjs";
 import { renderProjectContext, renderProjectList } from "../lib/render.mjs";
 
-const HELP = `tf — Tabple Claude skill CLI
+const HELP = `tp — Tabple Claude skill CLI
 
 사용:
-  tf context <project-id-or-key>     프로젝트 컨텍스트 카드 (60s 캐시)
-  tf wiki get <page-id>              위키 페이지 본문 → Markdown
-  tf wiki create -p <pid> -t <title> 위키 페이지 생성 (선택: --parent <pid> --icon 📄 --content "본문")
-  tf wiki update <page-id> [-t ...] [-c ...] [--icon ...]   위키 페이지 수정
-  tf wiki delete <page-id>           위키 페이지 삭제 (확인 없이 즉시, 자식은 cascade)
-  tf projects list                   내 프로젝트 목록
+  tp context <project-id-or-key>     프로젝트 컨텍스트 카드 (60s 캐시)
+  tp wiki get <page-id>              위키 페이지 본문 → Markdown
+  tp wiki create -p <pid> -t <title> 위키 페이지 생성 (선택: --parent <pid> --icon 📄 --content "본문")
+  tp wiki update <page-id> [-t ...] [-c ...] [--icon ...]   위키 페이지 수정
+  tp wiki delete <page-id>           위키 페이지 삭제 (확인 없이 즉시, 자식은 cascade)
+  tp projects list                   내 프로젝트 목록
+
+  wiki create/update/delete 는 MCP 엔드포인트(/api/mcp)의 같은 도구를 부른다 — PAT 는 REST 쓰기를
+  통과하지 않는다. 그래서 MCP 와 같은 조건이다: Pro · Pro 일회성 결제, 읽기 전용 토큰은 거절.
 
 옵션:
   --no-cache       캐시 무시하고 강제 재요청
@@ -63,7 +66,7 @@ function parseArgs(argv) {
 }
 
 function fail(msg, code = 1) {
-  process.stderr.write(`tf: ${msg}\n`);
+  process.stderr.write(`tp: ${msg}\n`);
   process.exit(code);
 }
 
@@ -76,13 +79,13 @@ async function resolveProjectId(idOrKey) {
     (p) => (p.key && p.key.toLowerCase() === idOrKey.toLowerCase()) ||
            p.name.toLowerCase() === idOrKey.toLowerCase(),
   );
-  if (!hit) throw new Error(`프로젝트를 찾을 수 없습니다: "${idOrKey}". 'tf projects list' 로 확인.`);
+  if (!hit) throw new Error(`프로젝트를 찾을 수 없습니다: "${idOrKey}". 'tp projects list' 로 확인.`);
   return hit.id;
 }
 
 async function cmdContext(args) {
   const target = args._[1];
-  if (!target) fail("프로젝트 id 또는 key 가 필요합니다. 예: tf context 42");
+  if (!target) fail("프로젝트 id 또는 key 가 필요합니다. 예: tp context 42");
 
   const projectId = await resolveProjectId(target);
   const cacheKey = `context:${projectId}`;
@@ -116,7 +119,7 @@ async function cmdContext(args) {
 
 async function cmdWikiGet(args) {
   const pageId = args._[2];
-  if (!pageId) fail("페이지 id 가 필요합니다. 예: tf wiki get 123");
+  if (!pageId) fail("페이지 id 가 필요합니다. 예: tp wiki get 123");
   if (!/^\d+$/.test(pageId)) fail("페이지 id 는 숫자여야 합니다.");
 
   const page = await api.getPage(Number(pageId));
@@ -172,7 +175,7 @@ async function cmdWikiCreate(args) {
 
 async function cmdWikiUpdate(args) {
   const pageId = args._[2];
-  if (!pageId) fail("페이지 id 가 필요합니다. 예: tf wiki update 123 -t \"새 제목\"");
+  if (!pageId) fail("페이지 id 가 필요합니다. 예: tp wiki update 123 -t \"새 제목\"");
   if (!/^\d+$/.test(pageId)) fail("페이지 id 는 숫자여야 합니다.");
 
   const patch = {};
@@ -194,11 +197,12 @@ async function cmdWikiUpdate(args) {
 
 async function cmdWikiDelete(args) {
   const pageId = args._[2];
-  if (!pageId) fail("페이지 id 가 필요합니다. 예: tf wiki delete 123");
+  if (!pageId) fail("페이지 id 가 필요합니다. 예: tp wiki delete 123");
   if (!/^\d+$/.test(pageId)) fail("페이지 id 는 숫자여야 합니다.");
 
-  await api.deletePage(Number(pageId));
-  process.stdout.write(`🗑️ 위키 페이지 ${pageId} 삭제 완료\n`);
+  const deleted = await api.deletePage(Number(pageId));
+  const count = Number(deleted?.deleted_count ?? 1);
+  process.stdout.write(`🗑️ 위키 페이지 ${pageId} 삭제 완료${count > 1 ? ` (하위 페이지 포함 ${count}개)` : ""}\n`);
 }
 
 async function cmdProjectsList(args) {

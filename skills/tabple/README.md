@@ -47,7 +47,10 @@ chmod 600 ~/.tabple/config.json
 
 ### 3. (선행) 토큰 호환성 확인 — **블로커 spike**
 
-이 스킬의 CLI 는 REST 엔드포인트 (`/api/projects` 등) 를 직접 호출한다. MCP-kind 토큰이 REST 에서도 통과해야 한다. **한 번 확인:**
+이 스킬의 CLI 는 **읽기**를 REST 엔드포인트 (`/api/projects` 등) 로 직접 호출한다. 백엔드는 PAT 를 MCP 엔드포인트와
+이 CLI 가 읽는 GET 6곳(`/api/projects` · `/api/projects/:id` · `/stats` · `/members` · `/api/pages` · `/api/pages/:id`)에서만
+받는다. 위키 **쓰기**(`tp wiki create/update/delete`)는 REST 가 아니라 MCP 엔드포인트(`/api/mcp`)의 같은 도구를 부른다 —
+그래서 MCP 와 같은 조건(Pro · Pro 일회성 결제, 읽기 전용 토큰은 거절)이다. **한 번 확인:**
 
 ```bash
 curl -sS -H "Authorization: Bearer $TABPLE_TOKEN" \
@@ -55,7 +58,7 @@ curl -sS -H "Authorization: Bearer $TABPLE_TOKEN" \
 ```
 
 - 정상: JSON 응답 (프로젝트 배열)
-- 실패: `401 Unauthorized` → 백엔드에서 MCP 토큰을 REST 에서 거부하는 상태. 이슈 등록 후 백엔드 수정 필요. (이 경우 CLI 가 작동하지 않으니 MCP 도구 채널만 사용)
+- 실패: `401 Unauthorized` → 토큰이 만료·폐기됐거나 잘못 복사됐다. Settings → MCP 에서 다시 발급.
 
 ### 4. Claude Code 에 스킬 등록
 
@@ -73,7 +76,7 @@ cp -r .claude/skills/tabple ~/.claude/skills/tabple
 
 ### 5. (선택, 권장) MCP 서버도 함께 등록
 
-CLI 는 MCP 가 못 하는 두 가지 (`tf context`, `tf wiki get`) 만 다룬다. 나머지 (태스크 CRUD, 프로젝트 stats 등) 는 MCP 도구가 처리하면 가장 깔끔하다.
+CLI 는 MCP 가 못 하는 두 가지 (`tp context`, `tp wiki get`) 만 다룬다. 나머지 (태스크 CRUD, 프로젝트 stats 등) 는 MCP 도구가 처리하면 가장 깔끔하다.
 
 ```bash
 claude mcp add --transport http tabple \
@@ -127,9 +130,9 @@ node ~/.claude/skills/tabple/bin/tp.mjs projects list
 ## 명령 레퍼런스
 
 ```text
-tf context <project-id-or-key>      프로젝트 컨텍스트 카드 (60s 캐시)
-tf wiki get <page-id>               위키 페이지 본문 → Markdown
-tf projects list                    내 프로젝트 목록 (캐시 없음)
+tp context <project-id-or-key>      프로젝트 컨텍스트 카드 (60s 캐시)
+tp wiki get <page-id>               위키 페이지 본문 → Markdown
+tp projects list                    내 프로젝트 목록 (캐시 없음)
 
 옵션:
   --no-cache         캐시 무시
@@ -168,10 +171,10 @@ npm test         # tiptap-md 회귀 테스트 (node --test)
 
 ## 알려진 제약
 
-- **위키 검색 전용 엔드포인트 없음**: 현재는 `list_pages` (MCP) 또는 `tf context` 의 페이지 트리를 LLM 이 grep 하는 방식. 백엔드에 `search_pages` 추가되면 SKILL.md 워크플로우 갱신 예정.
+- **위키 검색 전용 엔드포인트 없음**: 현재는 `list_pages` (MCP) 또는 `tp context` 의 페이지 트리를 LLM 이 grep 하는 방식. 백엔드에 `search_pages` 추가되면 SKILL.md 워크플로우 갱신 예정.
 - **태스크 검색 키워드**: MCP `get_tasks` 가 키워드 검색을 지원하지 않으면 클라이언트 측 필터에 의존. 큰 프로젝트에서는 페이지네이션 필요.
 - **TipTap 노드 커버리지**: table·codeBlock·체크리스트·링크·이미지·헤딩은 마크다운으로 완전 변환. mermaid/figma/drawio 등 임베드 노드는 url 또는 placeholder 로 degrade.
-- **분당 30콜 한도**: `tf context` 의 60s 캐시가 1차 방어선. 사용자가 여러 프로젝트를 빠르게 도는 워크플로우는 LLM 측에서 천천히 진행.
+- **분당 30콜 한도**: `tp context` 의 60s 캐시가 1차 방어선. 사용자가 여러 프로젝트를 빠르게 도는 워크플로우는 LLM 측에서 천천히 진행.
 
 ---
 

@@ -36,7 +36,7 @@ Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. 
 
 **MCP 가 커버하는 작업은 무조건 MCP 우선** — 구조화돼 있고 자동 검증·디스커버리가 붙어 있다.
 
-### B. CLI (`tf`) — MCP 가 못 하는 두 가지만
+### B. CLI (`tp`) — MCP 가 못 하는 두 가지만
 
 | 능력 | 명령 | 이유 |
 |---|---|---|
@@ -44,7 +44,7 @@ Cursor / Codex / Gemini / Claude Code 모두 MCP 를 네이티브 지원한다. 
 | 프로젝트 **composite context** (project + columns + tasks + members + stats + pages 한 번에, 60s 캐시) | `node $TABPLE_SKILL_DIR/bin/tp.mjs context <id-or-key>` | 분당 30콜 한도 보호 + LLM-친화 카드 포맷 |
 | 프로젝트 목록 (MCP 미등록 폴백) | `node $TABPLE_SKILL_DIR/bin/tp.mjs projects list` | MCP `list_projects` 와 동등 |
 
-`npm link` 했다면 짧게 `tf ...` 로 써도 됨.
+`npm link` 했다면 짧게 `tp ...` 로 써도 됨.
 
 ---
 
@@ -60,8 +60,8 @@ X 는 id (정수) / key ("PRJ") / 정확한 이름. 결과는 Stats · Columns �
 
 ### 2. "위키에서 'OAuth' 같은 키워드 찾아줘"
 
-1. MCP `list_pages` (또는 `tf context` 결과의 Wiki Pages 섹션) 에서 제목/icon 으로 후보 추리기
-2. 후보가 좁아지면 `tf wiki get <page-id>` 로 본문 가져와 컨텍스트에 주입
+1. MCP `list_pages` (또는 `tp context` 결과의 Wiki Pages 섹션) 에서 제목/icon 으로 후보 추리기
+2. 후보가 좁아지면 `tp wiki get <page-id>` 로 본문 가져와 컨텍스트에 주입
 
 ### 3. "위키 페이지 N 본문 보여줘"
 
@@ -73,7 +73,7 @@ LLM-친화 Markdown. 표·코드블록·링크·체크리스트 유지. 미지�
 
 ### 4. "태스크 목록/상세"
 
-MCP `get_tasks` 사용. MCP 미등록이면 `tf context X` 의 Recent Tasks + `... --recent 50`.
+MCP `get_tasks` 사용. MCP 미등록이면 `tp context X` 의 Recent Tasks + `... --recent 50`.
 
 ### 5. "태스크 생성/수정"
 
@@ -81,9 +81,9 @@ MCP `create_task` / `update_task`. 호출 전 사용자에게 컬럼·우선순�
 
 ### 6. "내 모든 프로젝트에서 Y 와 관련된 거"
 
-1. MCP `list_projects` (또는 `tf projects list`)
-2. 각 프로젝트별 `tf context <id>` — Wiki tree 와 Recent Tasks 에서 Y 매칭
-3. 좁힌 뒤 위키는 `tf wiki get`, 태스크는 MCP `get_tasks`
+1. MCP `list_projects` (또는 `tp projects list`)
+2. 각 프로젝트별 `tp context <id>` — Wiki tree 와 Recent Tasks 에서 Y 매칭
+3. 좁힌 뒤 위키는 `tp wiki get`, 태스크는 MCP `get_tasks`
 
 프로젝트 많으면 사용자에게 "어느 것부터 볼지" 물어 좁힌다.
 
@@ -91,19 +91,19 @@ MCP `create_task` / `update_task`. 호출 전 사용자에게 컬럼·우선순�
 
 ## 출력 가이드
 
-- `tf context` 결과 표는 사용자에게 통째로 인용하지 말고 한 단락 요약, 카드는 컨텍스트에 보관.
-- `tf wiki get` 결과는 가공 없이 컨텍스트에 두고 사용자에게는 제목 + 1-2줄 요약만 먼저 제시.
+- `tp context` 결과 표는 사용자에게 통째로 인용하지 말고 한 단락 요약, 카드는 컨텍스트에 보관.
+- `tp wiki get` 결과는 가공 없이 컨텍스트에 두고 사용자에게는 제목 + 1-2줄 요약만 먼저 제시.
 - MCP 도구 결과는 raw JSON — 표/불릿으로 재구성해 보여주기.
 
 ## 절대 하지 말 것
 
-- 같은 `tf context` 짧은 간격 반복 호출 (60s 캐시가 1차 방어선, `--no-cache` 남발 금지). 분당 30콜 한도.
+- 같은 `tp context` 짧은 간격 반복 호출 (60s 캐시가 1차 방어선, `--no-cache` 남발 금지). 분당 30콜 한도.
 - 태스크 생성/수정 전 사용자 확인 없이 진행. **MCP create/update 는 즉시 서버 반영**.
 - 위키 본문을 LLM 이 새로 작성해 PUT 금지 — 본문 편집은 Tabple Desktop 에디터에서.
 
 ## 트러블슈팅
 
-- `tf: Tabple 토큰이 설정되지 않았습니다` → README "PAT 발급" 단계.
+- `tp: Tabple 토큰이 설정되지 않았습니다` → README "PAT 발급" 단계.
 - `API 401` → 토큰 만료/권한 부족. Settings → MCP 에서 재발급.
 - `API 429` → 분당 한도 초과. 60초 대기 또는 캐시된 결과 활용.
-- `tf wiki get` 결과가 HTML 처럼 보인다 → 페이지 본문이 JSON 이 아닌 HTML 로 저장된 경우 (degrade path, 정상).
+- `tp wiki get` 결과가 HTML 처럼 보인다 → 페이지 본문이 JSON 이 아닌 HTML 로 저장된 경우 (degrade path, 정상).

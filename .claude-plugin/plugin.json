@@ -1,6 +1,6 @@
 {
   "name": "tabple",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Load Tabple project context (wiki + board) and CRUD tasks for any LLM coding session. Bridges Claude Code with Tabple (https://tabple.com).",
   "author": {
     "name": "shing100",
