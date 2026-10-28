@@ -44,6 +44,7 @@ Claude Code 에서 다음 명령을 실행합니다.
 
 ```bash
 git clone https://github.com/shing100/tabple-claude-skill.git
+mkdir -p ~/.claude/skills
 cp -r tabple-claude-skill/skills/tabple ~/.claude/skills/tabple
 ```
 
@@ -84,7 +85,7 @@ node ~/.claude/skills/tabple/bin/tp.mjs projects list
 환경 변수로 설정하는 예:
 
 ```bash
-echo 'export TABPLE_TOKEN=<발급받은 토큰>' >> ~/.zshrc   # 또는 ~/.bashrc
+echo 'export TABPLE_TOKEN="<발급받은 토큰>"' >> ~/.zshrc   # 또는 ~/.bashrc
 source ~/.zshrc
 ```
 
